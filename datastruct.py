@@ -1,3 +1,6 @@
+from collections import deque
+
+
 class Node:
     """ 单向链表节点 """
 
@@ -58,6 +61,31 @@ class LinkedList:
         return s
 
 
+class Stack:
+    def __init__(self):
+        self.__items = []
+
+    def push(self, item: any):
+        self.__items.append(item)
+
+    def pop(self):
+        return self.__items.pop()
+
+    def peek(self):
+        return self.__items[len(self.__items)]
+
+    def size(self) -> int:
+        return len(self.__items)
+
+    def is_empty(self) -> bool:
+        return self.__items == []
+
+    def __iter__(self):
+        copy = self.__items.copy()
+        copy.reverse()
+        return iter(copy)
+
+
 if __name__ == '__main__':
     lklist = LinkedList()
     lklist.add('Mike')
@@ -67,3 +95,13 @@ if __name__ == '__main__':
     print(lklist.pop())
     print(lklist)
     print(lklist.size())
+
+    stack = Stack()
+    stack.push("A")
+    stack.push("B")
+    stack.push("C")
+    for x in stack:
+        print(x)
+    print('========================')
+    while not stack.is_empty():
+        print(stack.pop())
