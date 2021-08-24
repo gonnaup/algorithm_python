@@ -4,6 +4,8 @@ def merge_sort(arr: []):
 
 def __sort_merge(arr: [], start: int, end: int):
     """ 二路归并 """
+
+    # 结束条件，当分割部分只剩一个元素时已有序，结束分割
     if end - start <= 1:
         return
     mid = (start + end) // 2
