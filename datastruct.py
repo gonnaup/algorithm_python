@@ -1,6 +1,3 @@
-from collections import deque
-
-
 class Node:
     """ 单向链表节点 """
 
