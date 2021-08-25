@@ -1,3 +1,7 @@
+import random
+from typing import List, Iterator
+
+
 class Node:
     """ 单向链表节点 """
 
@@ -59,6 +63,10 @@ class LinkedList:
 
 
 class Stack:
+    """
+    后进先出数据结构
+    """
+
     def __init__(self):
         self.__items = []
 
@@ -83,6 +91,35 @@ class Stack:
         return iter(copy)
 
 
+class Bag:
+    """
+    Bag背包结构，是一种不支持删除元素的线性结构，它的目的是帮助用例
+    收集元素并迭代遍历所有元素，迭代顺序不确定且和用例无关
+    """
+
+    def __init__(self):
+        self.__container = []
+
+    def add(self, item):
+        self.__container.append(item)
+
+    def __iter__(self):
+        return RandomListIterator(self.__container.copy())
+
+
+class RandomListIterator(Iterator):
+    # 随机迭代器
+    def __init__(self, ls: List):
+        self.__list = ls
+
+    def __next__(self):
+        if len(self.__list) > 0:
+            i = random.randint(0, len(self.__list) - 1)
+            return self.__list.pop(i)
+        else:
+            raise StopIteration
+
+
 if __name__ == '__main__':
     lklist = LinkedList()
     lklist.add('Mike')
@@ -102,3 +139,11 @@ if __name__ == '__main__':
     print('========================')
     while not stack.is_empty():
         print(stack.pop())
+
+    bag = Bag()
+    bag.add('dlskjs')
+    bag.add("dlsooo")
+    bag.add("klksdkok")
+    bag.add("ooskkdoso")
+    for x in bag:
+        print(x)
