@@ -1,3 +1,5 @@
+from typing import Callable
+
 from treestruct import TreeNode
 
 
@@ -21,6 +23,18 @@ def searchOfTree(root: TreeNode, data: any) -> bool:
         return searchOfTree(root.left, data) or searchOfTree(root.right, data)
     else:
         return False
+
+
+def LDR_traversal(root: TreeNode, fn: Callable):
+    """
+    中序遍历二叉树
+    :param fn: 节点数据处理函数
+    :param root: 二叉树根节点
+    """
+    if root:
+        LDR_traversal(root.left, fn)
+        fn(root.data())
+        LDR_traversal(root.right, fn)
 
 
 if __name__ == '__main__':
