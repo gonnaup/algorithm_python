@@ -78,6 +78,9 @@ class HuffmanTree(TreeNode):
     @staticmethod
     def createHuffmanCode(weight_str: Dict) -> Dict:
         """
+        生成一颗Huffman树，由于所有带权重的节点都是叶子节点，
+        所以从根节点递归遍历此哈夫曼树，遇到左子树编码+'0'，
+        遇到右子树编码+'1'，得到每个叶子节点的编码
         :param weight_str: (int -> str) 比重和对应字符的字典
         :return str_code: (str -> str) 字符和对应编码的字典
         """
@@ -111,14 +114,11 @@ if __name__ == '__main__':
             LDR_traversal(root.left, fn)
             fn(root.data())
             LDR_traversal(root.right, fn)
-
-
     huffman_weight = [[5, 7, 2, 13], [7, 5, 2, 4], [7, 19, 2, 6, 32, 3, 21, 10], [13, 7, 8, 3, 29, 6, 1],
                       [3, 12, 7, 4, 2, 8, 11]]
     for weighted in huffman_weight:
         huffmane_tree = HuffmanTree.createHuffmanTree(weighted)
-        LDR_traversal(huffmane_tree, lambda node: print(node))
-        print("===================== next>>>>>>")
-
+        LDR_traversal(huffmane_tree, lambda node: print(node, end="\t"))
+        print("\r\n===================== next>>>>>>")
     weight_char = {6: "A", 3: "B", 8: "C", 2: "D", 10: "E", 4: "F"}
     print(HuffmanTree.createHuffmanCode(weight_char))
