@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 
 class TreeNode:
@@ -75,6 +75,30 @@ class HuffmanTree(TreeNode):
                     break  # 注意break，不然还会循环一次而两次插入节点
         return huff_root
 
+    @staticmethod
+    def createHuffmanCode(weight_str: Dict) -> Dict:
+        """
+        :param weight_str: (int -> str) 比重和对应字符的字典
+        :return str_code: (str -> str) 字符和对应编码的字典
+        """
+        weights = list(weight_str.keys())  # 获取所有比重值
+        root_huffman = HuffmanTree.createHuffmanTree(weights)  # 构建huffman树
+
+        # 遍历每个叶子节点，生成对应编码
+        str_code = {}
+
+        # 先序遍历哈夫曼树生成哈夫曼编码，左子树编码+'0'，右子树编码+'1'
+        def code_generater(tree: HuffmanTree, code: str = ""):
+            if tree.left is None:  # 哈夫曼树中的非叶子节点左右子树都不为None
+                weight = tree.data()
+                str_code[weight_str.get(weight)] = code
+                return
+            code_generater(tree.left, code + "0")
+            code_generater(tree.right, code + "1")
+
+        code_generater(root_huffman)
+        return str_code
+
 
 if __name__ == '__main__':
     def LDR_traversal(root: TreeNode, fn):
@@ -95,3 +119,6 @@ if __name__ == '__main__':
         huffmane_tree = HuffmanTree.createHuffmanTree(weighted)
         LDR_traversal(huffmane_tree, lambda node: print(node))
         print("===================== next>>>>>>")
+
+    weight_char = {6: "A", 3: "B", 8: "C", 2: "D", 10: "E", 4: "F"}
+    print(HuffmanTree.createHuffmanCode(weight_char))
