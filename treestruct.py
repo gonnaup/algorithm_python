@@ -292,12 +292,12 @@ class AVLTree:
         self._root = None
 
     @staticmethod
-    def height(node: AVLTreeNode) -> int:
+    def _height(node: AVLTreeNode) -> int:
         """ AVL的高度 """
         return node.height if node else 0
 
     @staticmethod
-    def leftRotation(root: AVLTreeNode) -> AVLTreeNode:
+    def _leftRotation(root: AVLTreeNode) -> AVLTreeNode:
         """
         单左旋转：在右子树插入右孩子导致AVL失衡，使用单左旋转：
           4 BF=-1    插入6        (4)         左旋              5
@@ -317,13 +317,13 @@ class AVLTree:
         root.right = rchild.left
         rchild.left = root
 
-        root.height = max(AVLTree.height(root.left), AVLTree.height(root.right)) + 1
-        rchild.height = max(AVLTree.height(rchild.left), AVLTree.height(rchild.right)) + 1
+        root.height = max(AVLTree._height(root.left), AVLTree._height(root.right)) + 1
+        rchild.height = max(AVLTree._height(rchild.left), AVLTree._height(rchild.right)) + 1
 
         return rchild
 
     @staticmethod
-    def rightRotation(root: AVLTreeNode) -> AVLTreeNode:
+    def _rightRotation(root: AVLTreeNode) -> AVLTreeNode:
         """
         单右旋转：在左子树上插入左孩子导致AVL树失衡，使用单右旋转：
             5                       5                              5
@@ -344,13 +344,13 @@ class AVLTree:
         root.left = lchild.right
         lchild.right = root
 
-        root.height = max(AVLTree.height(root.left), AVLTree.height(root.right)) + 1
-        lchild.height = max(AVLTree.height(lchild.left), AVLTree.height(lchild.right)) + 1
+        root.height = max(AVLTree._height(root.left), AVLTree._height(root.right)) + 1
+        lchild.height = max(AVLTree._height(lchild.left), AVLTree._height(lchild.right)) + 1
 
         return lchild
 
     @staticmethod
-    def rightLeftRotation(root: AVLTreeNode) -> AVLTreeNode:
+    def _rightLeftRotation(root: AVLTreeNode) -> AVLTreeNode:
         """
         先右旋后左旋：在右子树上插入左孩子导致AVL树失衡时使用：
         6                   6                       7
@@ -363,11 +363,11 @@ class AVLTree:
         :param root:
         :return:
         """
-        root.right = AVLTree.rightRotation(root.right)
-        return AVLTree.leftRotation(root)
+        root.right = AVLTree._rightRotation(root.right)
+        return AVLTree._leftRotation(root)
 
     @staticmethod
-    def leftRightRotation(root: AVLTreeNode) -> AVLTreeNode:
+    def _leftRightRotation(root: AVLTreeNode) -> AVLTreeNode:
         """
         先左旋后右旋：在左子树上插入右孩子导致AVL树失衡时使用：
             2                       2                        1
@@ -380,32 +380,46 @@ class AVLTree:
         :param root:
         :return:
         """
-        root.left = AVLTree.rightRotation(root.left)
-        return AVLTree.leftRotation(root)
+        root.left = AVLTree._rightRotation(root.left)
+        return AVLTree._leftRotation(root)
 
     @staticmethod
-    def insertNode(root: AVLTreeNode, data: any) -> AVLTreeNode:
+    def _searchNode(root: AVLTreeNode, data) -> AVLTreeNode:
+        """
+        AVL树递归查询数据
+        :return 数据存在数据所在节点，数据不存在返回None
+        """
+        if root:
+            if data == root.data:
+                return root
+            if data > root.data:
+                return AVLTree._searchNode(root.right, data)
+            if data < root.data:
+                return AVLTree._searchNode(root.left, data)
+
+    @staticmethod
+    def _insertNode(root: AVLTreeNode, data: any) -> AVLTreeNode:
         if root is None:
             root = AVLTreeNode(data)
         elif data > root.data:
-            root.right = AVLTree.insertNode(root.right, data)
+            root.right = AVLTree._insertNode(root.right, data)
             # AVL树平衡因子检查和再均衡
             # 插入右子节点，则此时右子树高度+1，不可能出现左子树高度-右子树高度大于2的情况
-            if AVLTree.height(root.right) - AVLTree.height(root.left) == 2:
+            if AVLTree._height(root.right) - AVLTree._height(root.left) == 2:
                 if data > root.right.data:
                     # 插入右子节点的右节点，进行左旋
-                    root = AVLTree.leftRotation(root)
+                    root = AVLTree._leftRotation(root)
                 elif data < root.right.data:
                     # 插入右子节点的左节点，先右旋再左旋
-                    root = AVLTree.rightLeftRotation(root)
+                    root = AVLTree._rightLeftRotation(root)
         elif data < root.data:
-            root.left = AVLTree.insertNode(root.left, data)
-            if AVLTree.height(root.left) - AVLTree.height(root.right) == 2:
+            root.left = AVLTree._insertNode(root.left, data)
+            if AVLTree._height(root.left) - AVLTree._height(root.right) == 2:
                 if data < root.left.data:
-                    root = AVLTree.rightRotation(root)
+                    root = AVLTree._rightRotation(root)
                 elif data > root.left.data:
-                    root = AVLTree.leftRightRotation(root)
-        root.height = max(AVLTree.height(root.left), AVLTree.height(root.right)) + 1
+                    root = AVLTree._leftRightRotation(root)
+        root.height = max(AVLTree._height(root.left), AVLTree._height(root.right)) + 1
         return root
 
 
