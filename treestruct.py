@@ -278,7 +278,7 @@ class AVLTreeNode(TreeNode):
         self.__height = height
 
 
-class AVLTree(BinarySearchTree):
+class AVLTree:
     """
     AVL树是最先发明的自平衡二叉查找树（Self-Balancing Binary Search Tree）。
     平衡因子（BF）：左子树的高度减去右子树的高度
@@ -289,8 +289,7 @@ class AVLTree(BinarySearchTree):
     """
 
     def __init__(self):
-        super().__init__()
-        self._root = AVLTreeNode(None)
+        self._root = None
 
     @staticmethod
     def height(node: AVLTreeNode) -> int:
@@ -384,6 +383,31 @@ class AVLTree(BinarySearchTree):
         root.left = AVLTree.rightRotation(root.left)
         return AVLTree.leftRotation(root)
 
+    @staticmethod
+    def insertNode(root: AVLTreeNode, data: any) -> AVLTreeNode:
+        if root is None:
+            root = AVLTreeNode(data)
+        elif data > root.data:
+            root.right = AVLTree.insertNode(root.right, data)
+            # AVL树平衡因子检查和再均衡
+            # 插入右子节点，则此时右子树高度+1，不可能出现左子树高度-右子树高度大于2的情况
+            if AVLTree.height(root.right) - AVLTree.height(root.left) == 2:
+                if data > root.right.data:
+                    # 插入右子节点的右节点，进行左旋
+                    root = AVLTree.leftRotation(root)
+                elif data < root.right.data:
+                    # 插入右子节点的左节点，先右旋再左旋
+                    root = AVLTree.rightLeftRotation(root)
+        elif data < root.data:
+            root.left = AVLTree.insertNode(root.left, data)
+            if AVLTree.height(root.left) - AVLTree.height(root.right) == 2:
+                if data < root.left.data:
+                    root = AVLTree.rightRotation(root)
+                elif data > root.left.data:
+                    root = AVLTree.leftRightRotation(root)
+        root.height = max(AVLTree.height(root.left), AVLTree.height(root.right)) + 1
+        return root
+
 
 def createBinarySearchTree(datas: []) -> BinarySearchTree:
     tree = BinarySearchTree()
@@ -435,5 +459,3 @@ if __name__ == '__main__':
     bst1.traversal()
     print("==================  AVL树 >>>>>>>")
     avl = AVLTree()
-    avl.insert(4)
-    avl.traversal()
