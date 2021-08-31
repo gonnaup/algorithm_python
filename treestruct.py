@@ -118,7 +118,7 @@ class BinarySearchTree:
     """
 
     def __init__(self):
-        self.__root = TreeNode(None)
+        self._root = TreeNode(None)
 
     def search(self, data: any) -> bool:
         """
@@ -126,7 +126,7 @@ class BinarySearchTree:
         :param data: 数据
         :return: True - 数据存在，False - 数据不存在
         """
-        node = self.__root
+        node = self._root
         while node:
             node_data = node.data
             if node_data == data:
@@ -143,7 +143,7 @@ class BinarySearchTree:
         :param data: 数据
         :return: 成功插入则返回data，有重复数据返回 None
         """
-        node = self.__root
+        node = self._root
         if node.data is None:  # 整颗树为空
             node.data = data
             return data
@@ -173,7 +173,7 @@ class BinarySearchTree:
         """
         ######## 非递归实现 #######
         pre_node = None  # 前驱节点
-        node = self.__root
+        node = self._root
         left_side = None  # 当前节点为父节点的左节点？
         while node:
             node_data = node.data
@@ -207,7 +207,7 @@ class BinarySearchTree:
                         else:
                             pre_node.right = node_child
                     else:  # 根节点为要删除的节点
-                        self.__root = node_child  # 无前驱节点时不能使用left_side标记判断
+                        self._root = node_child  # 无前驱节点时不能使用left_side标记判断
                     data_node.left, data_node.right, data_node.data = None, None, None  # 释放节点资源
                 else:
                     # 节点的度为0，直接删除本节点
@@ -248,7 +248,7 @@ class BinarySearchTree:
         return None
 
     def traversal(self):
-        self.__traversal(self.__root)
+        self.__traversal(self._root)
         print()
 
     def __traversal(self, node: TreeNode):
@@ -257,6 +257,132 @@ class BinarySearchTree:
         self.__traversal(node.left)
         print(node.data, end='  ')
         self.__traversal(node.right)
+
+
+class AVLTreeNode(TreeNode):
+
+    def __init__(self, data: any):
+        super().__init__(data)
+        self.__height = 0
+
+    @property
+    def height(self):
+        """
+        节点的高度，用于计算父节点的平衡因子
+        :return:
+        """
+        return self.__height
+
+    @height.setter
+    def height(self, height: int):
+        self.__height = height
+
+
+class AVLTree(BinarySearchTree):
+    """
+    AVL树是最先发明的自平衡二叉查找树（Self-Balancing Binary Search Tree）。
+    平衡因子（BF）：左子树的高度减去右子树的高度
+    链接：https://cloud.tencent.com/developer/article/1155143
+    一颗AVL树有如下必要条件：
+    1. 它必须是二叉查找树
+    2. 每个节点的左子树和右子树的高度差至多为1
+    """
+
+    def __init__(self):
+        super().__init__()
+        self._root = AVLTreeNode(None)
+
+    @staticmethod
+    def height(node: AVLTreeNode) -> int:
+        """ AVL的高度 """
+        return node.height if node else 0
+
+    @staticmethod
+    def leftRotation(root: AVLTreeNode) -> AVLTreeNode:
+        """
+        单左旋转：在右子树插入右孩子导致AVL失衡，使用单左旋转：
+          4 BF=-1    插入6        (4)         左旋              5
+           \          =====>        \       ========>          /  \
+             5                        5                       4    6
+                                        \                   BF=0
+                                          6
+        分析：
+        1. 根节点为节点4
+        2. 若节点5有左子树，则该左子树成为节点4的右子树
+        3. 节点4成为节点5的左子树
+        4. 更新节点的高度
+        :param root: 最小失衡子树的根节点
+        :return: 单左旋后的root节点
+        """
+        rchild: AVLTreeNode = root.right
+        root.right = rchild.left
+        rchild.left = root
+
+        root.height = max(AVLTree.height(root.left), AVLTree.height(root.right)) + 1
+        rchild.height = max(AVLTree.height(rchild.left), AVLTree.height(rchild.right)) + 1
+
+        return rchild
+
+    @staticmethod
+    def rightRotation(root: AVLTreeNode) -> AVLTreeNode:
+        """
+        单右旋转：在左子树上插入左孩子导致AVL树失衡，使用单右旋转：
+            5                       5                              5
+           / \     插入2、3        /  \        右旋               /  \
+          4   6     ====>       (4)    6       =====>            3     6
+         BF=0                   / BF=2                          / \
+                               3                               2   4 BF=0
+                              /
+                             2
+        1. 最小失衡子树的根节点为节点4
+        2. 若节点3有右子树，则该右子树称为节点4的左子树
+        3. 节点4称为节点3的右子树
+        4. 调整节点高度
+        :param root: 单右旋后的root节点
+        :return:
+        """
+        lchild: AVLTreeNode = root.left
+        root.left = lchild.right
+        lchild.right = root
+
+        root.height = max(AVLTree.height(root.left), AVLTree.height(root.right)) + 1
+        lchild.height = max(AVLTree.height(lchild.left), AVLTree.height(lchild.right)) + 1
+
+        return lchild
+
+    @staticmethod
+    def rightLeftRotation(root: AVLTreeNode) -> AVLTreeNode:
+        """
+        先右旋后左旋：在右子树上插入左孩子导致AVL树失衡时使用：
+        6                   6                       7
+         \     右旋          \        左旋         /  \
+          8    ====>          7       ====>       6    8
+         /                     \
+        7                       8
+        1. 对最小不平衡树根节点的右孩子节点8进行右旋操作
+        2. 再对根节点6进行左旋转
+        :param root:
+        :return:
+        """
+        root.right = AVLTree.rightRotation(root.right)
+        return AVLTree.leftRotation(root)
+
+    @staticmethod
+    def leftRightRotation(root: AVLTreeNode) -> AVLTreeNode:
+        """
+        先左旋后右旋：在左子树上插入右孩子导致AVL树失衡时使用：
+            2                       2                        1
+           /        右旋           /        左旋            /  \
+          0         ====>         1         ====>          0     2
+           \                     /
+            1                   0
+        1. 对最小不平衡树根节点的左孩子节点0进行左旋转
+        2. 对根节点2进行右旋转
+        :param root:
+        :return:
+        """
+        root.left = AVLTree.rightRotation(root.left)
+        return AVLTree.leftRotation(root)
 
 
 def createBinarySearchTree(datas: []) -> BinarySearchTree:
@@ -307,3 +433,7 @@ if __name__ == '__main__':
     bst1.traversal()
     bst1.delete(15)
     bst1.traversal()
+    print("==================  AVL树 >>>>>>>")
+    avl = AVLTree()
+    avl.insert(4)
+    avl.traversal()
