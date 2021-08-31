@@ -226,6 +226,25 @@ class BinarySearchTree:
                 pre_node = node
                 node = node.left
                 left_side = True
+        """ 递归实现参考
+        def delete(root, value):
+            if not root:
+                return None
+            if value < root.value:
+                root.lchild = delete(root.lchild, value)
+            elif value > root.value:
+                root.rchild = delete(root.rchild, value)
+            else:
+                if root.lchild and root.rchild:  # degree of the node is 2
+                    target = root.lchild  # find the maximum node of the left subtree
+                    while target.rchild:
+                        target = target.rchild
+                    root = delete(root, target.value)
+                    root.value = target.value
+                else:  # degree of the node is [0|1]
+                    root = root.lchild if root.lchild else root.rchild
+            return root
+        """
         return None
 
     def traversal(self):
