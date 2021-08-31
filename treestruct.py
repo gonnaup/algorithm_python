@@ -179,7 +179,7 @@ class BinarySearchTree:
             node_data = node.data
             if node_data == data:  # 找到节点位置
                 data_node = node
-                if (data_node.left is not None) & (data_node.right is not None):
+                if data_node.left and data_node.right:
                     # 节点的度为2，从此节点的左子树中选出一个最大值的节点替换此节点
                     left_max_node: TreeNode = data_node.left
                     pre_left_max_node: TreeNode = data_node  # 前驱节点
@@ -197,7 +197,7 @@ class BinarySearchTree:
                         pre_left_max_node.right = left_max_node_left
                         left_max_node.left = None
                     #
-                elif (data_node.left is not None) | (data_node.right is not None):
+                elif data_node.left or data_node.right:
                     # 节点的度为1，直接将子节点移到本节点
                     node_child = data_node.left if data_node.left else data_node.right
                     if pre_node:
