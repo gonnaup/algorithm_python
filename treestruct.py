@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Callable
 
 
 class TreeNode:
@@ -291,6 +291,28 @@ class AVLTree:
     def __init__(self):
         self._root = None
 
+    def insert(self, data):
+        self._root = AVLTree._insertNode(self._root, data)
+
+    def delete(self, data):
+        self._root = AVLTree._deleteNode(self._root, data)
+
+    def search(self, data) -> bool:
+        data_node = AVLTree._searchNode(self._root, data)
+        return True if data_node else False
+
+    def traversal(self):
+        AVLTree._LDR_traversal(self._root, lambda d: print(str(d), end="\t"))
+        print()
+
+    ########################### static method #############################
+    @staticmethod
+    def _LDR_traversal(root: AVLTreeNode, fn: Callable):
+        if root:
+            AVLTree._LDR_traversal(root.left, fn)
+            fn(root.data)
+            AVLTree._LDR_traversal(root.right, fn)
+
     @staticmethod
     def _height(node: AVLTreeNode) -> int:
         """ AVL的高度 """
@@ -435,7 +457,7 @@ class AVLTree:
         if root:
             if data == root.data:  # 锁定需要删除的节点
                 if root.left and root.right:
-                    # 删除节点同时有左右子树，选择高度较高得子树上选择最大或最小元素进行替换，这样
+                    # 删除节点同时有左右子树，选择高度较高的子树上选择最大或最小元素进行替换，这样
                     # 就无需调整AVL树的平衡性
                     if AVLTree._height(root.left) > AVLTree._height(root.right):
                         # 左节点高度大于右节点，选择左节点中最大节点替换root节点，此时无需调整平衡性
@@ -449,8 +471,9 @@ class AVLTree:
                         root.data = right_minNode.data
                         root.right = AVLTree._deleteNode(root.right, right_minNode.data)
                 else:
-                    # 节点的子树为1或0棵
-                    pass
+                    # 节点的子树为1或0棵，直接使用子树节点替换本节点
+                    root = root.left if root.left else root.right
+
             elif data > root.data:
                 # 数据在右子树上
                 root.right = AVLTree._deleteNode(root.right, data)
@@ -463,7 +486,7 @@ class AVLTree:
             else:
                 # 数据在左子树上
                 root.left = AVLTree._deleteNode(root.left, data)
-                if AVLTree._height(root.right) - AVLTree._height(root.left):
+                if AVLTree._height(root.right) - AVLTree._height(root.left) == 2:
                     if AVLTree._height(root.right.left) > AVLTree._height(root.right.right):
                         root = AVLTree._rightLeftRotation(root)
                     else:
@@ -538,3 +561,11 @@ if __name__ == '__main__':
     bst1.traversal()
     print("==================  AVL树 >>>>>>>")
     avl = AVLTree()
+    for i in range(20):
+        avl.insert(i)
+    avl.traversal()
+    avl.delete(8)
+    avl.delete(15)
+    avl.delete(3)
+    avl.delete(9)
+    avl.traversal()
