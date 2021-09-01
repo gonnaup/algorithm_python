@@ -422,6 +422,71 @@ class AVLTree:
         root.height = max(AVLTree._height(root.left), AVLTree._height(root.right)) + 1
         return root
 
+    @staticmethod
+    def _deleteNode(root: AVLTreeNode, data: any) -> AVLTreeNode:
+        """
+        删除节点也可能导致AVL树的失衡，它和插入是一种互逆的操作：
+        1. 删除右子树的节点导致AVL树失衡时，相当于在左子树插入节点导致AVL树失衡
+        2. 删除左子树的节点导致AVL树失衡时，相当于在右子树插入节点导致AVL树失衡
+        另外，在删除节点时也要维护二叉排序树的高度属性
+        在删除节点时，如果节点同时拥有左右子树，则在高度较高的子树上选择最大（或最小）
+        元素进行替换，这样能保证替换后不会再出现失衡的现象。
+        """
+        if root:
+            if data == root.data:  # 锁定需要删除的节点
+                if root.left and root.right:
+                    # 删除节点同时有左右子树，选择高度较高得子树上选择最大或最小元素进行替换，这样
+                    # 就无需调整AVL树的平衡性
+                    if AVLTree._height(root.left) > AVLTree._height(root.right):
+                        # 左节点高度大于右节点，选择左节点中最大节点替换root节点，此时无需调整平衡性
+                        left_maxNode = AVLTree.__maxNode(root.left)
+                        root.data = left_maxNode.data
+                        # ★★★设置root左节点为删除以root节点左节点为root节点的树的最大节点后的根节点
+                        root.left = AVLTree._deleteNode(root.left, left_maxNode.data)
+                    else:
+                        # 左节点高度小于等于右节点，选择右节点中最小节点替换root节点
+                        right_minNode = AVLTree.__minNode(root.right)
+                        root.data = right_minNode.data
+                        root.right = AVLTree._deleteNode(root.right, right_minNode.data)
+                else:
+                    # 节点的子树为1或0棵
+                    pass
+            elif data > root.data:
+                # 数据在右子树上
+                root.right = AVLTree._deleteNode(root.right, data)
+                if AVLTree._height(root.left) - AVLTree._height(root.right) == 2:
+                    # ★★★对root进行再平衡处理
+                    if AVLTree._height(root.left.right) > AVLTree._height(root.left.left):
+                        root = AVLTree._leftRightRotation(root)
+                    else:
+                        root = AVLTree._rightRotation(root)
+            else:
+                # 数据在左子树上
+                root.left = AVLTree._deleteNode(root.left, data)
+                if AVLTree._height(root.right) - AVLTree._height(root.left):
+                    if AVLTree._height(root.right.left) > AVLTree._height(root.right.right):
+                        root = AVLTree._rightLeftRotation(root)
+                    else:
+                        root = AVLTree._leftRotation(root)
+            return root
+
+    ########################### private method #############################
+    @staticmethod
+    def __maxNode(root: AVLTreeNode) -> AVLTreeNode:
+        """
+        选出AVL树中元素最大的节点并返回
+        """
+        if root:
+            return AVLTree.__maxNode(root.right) if root.right else root
+
+    @staticmethod
+    def __minNode(root: AVLTreeNode) -> AVLTreeNode:
+        """
+        选出AVL树中元素最小的节点并返回
+        """
+        if root:
+            return AVLTree.__minNode(root.left) if root.left else root
+
 
 def createBinarySearchTree(datas: []) -> BinarySearchTree:
     tree = BinarySearchTree()
