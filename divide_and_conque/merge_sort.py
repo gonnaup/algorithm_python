@@ -3,7 +3,9 @@ def merge_sort(arr: []):
 
 
 def __sort_merge(arr: [], start: int, end: int):
-    """ 二路归并 """
+    """
+    二路归并：分割数组为两部分，分别对这两部分排序，然后将两个有序数组合并
+    """
 
     # 结束条件，当分割部分只剩一个元素时已有序，结束分割
     if end - start <= 1:
